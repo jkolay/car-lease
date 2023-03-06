@@ -1,4 +1,5 @@
-package com.carlease.lease.leaseDto;
+package com.carlease.lease.model.response;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +29,7 @@ public class CarResponse {
     private Double netPrice;
 
     private Double grossPrice;
+    private Long mileage;
 
     private String status;
 

@@ -1,4 +1,4 @@
-package com.carlease.lease.services;
+package com.carlease.lease.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -10,13 +10,13 @@ import org.springframework.web.client.RestTemplate;
 import java.time.Duration;
 
 @Configuration
-public class CarClientConfig {
+public class CarLeaseClientConfig {
 
-        @Bean(name = "CarsRestTemplate")
+        @Bean(name = "RestTemplate")
         @LoadBalanced
         public RestTemplate restTemplate(RestTemplateBuilder builder,
-                                         @Value("${cars.client.timeout.connectSeconds}") int connectionTimeoutSeconds,
-                                         @Value("${cars.client.timeout.readSeconds}") int readTimeoutSeconds) {
+                                         @Value("${restTemplate.timeout.connectSeconds}") int connectionTimeoutSeconds,
+                                         @Value("${restTemplate.timeout.readSeconds}") int readTimeoutSeconds) {
             return builder.setConnectTimeout(Duration.ofMillis(connectionTimeoutSeconds * 1000))
                     .setReadTimeout(Duration.ofMillis(readTimeoutSeconds * 1000))
                     .build();
