@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@OpenAPIDefinition(info = @Info(title = "Customer API", version = "1.0", description = "Customer Information"))
+@OpenAPIDefinition(info = @Info(title = "Car Lease API", version = "1.0", description = "Car Lease Service"))
 public class CarLeaseServiceApplication {
 
 	public static void main(String[] args) {
