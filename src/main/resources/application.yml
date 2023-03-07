@@ -3,15 +3,6 @@ server:
 spring:
   application:
      name: car-lease
-  h2:
-    console:
-      enabled: true
-      path: /h2
-    datasource:
-         url: jdbc:h2:mem:carlease
-         username: sa
-         password: password
-         driverClassName: org.h2.Driver
 eureka:
   client:
     serviceUrl:
@@ -19,17 +10,8 @@ eureka:
 cars:
   client:
     baseUrl: api/v1/car/
+    endpoint: /carId
     hostname: CAR-SERVICE
-
-customer:
-  client:
-    baseUrl: api/v1/customer/
-    hostname: CUSTOMER
-
-restTemplate:
-  timeout:
+    timeout:
       connectSeconds: 5
       readSeconds: 20
-
-entityManager:
-  packagesToScan : com.carlease.lease
