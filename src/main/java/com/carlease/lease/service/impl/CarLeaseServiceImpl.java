@@ -1,8 +1,8 @@
 package com.carlease.lease.service.impl;
 
-import com.carlease.lease.config.CarClientProperties;
+import com.carlease.lease.client.CarClientProperties;
 import com.carlease.lease.config.CarLeaseConstant;
-import com.carlease.lease.config.CustomerClientProperties;
+import com.carlease.lease.client.CustomerClientProperties;
 import com.carlease.lease.exception.CarLeaseException;
 import com.carlease.lease.exception.CustomerNotFoundException;
 import com.carlease.lease.mapper.CarLeaseMapper;
