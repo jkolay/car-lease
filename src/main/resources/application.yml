@@ -3,6 +3,19 @@ server:
 spring:
   application:
      name: car-lease
+  h2:
+    console:
+      enabled: true
+  datasource:
+         url: jdbc:h2:mem:car-lease
+         username: sa
+         password: password
+         driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
 eureka:
   client:
     serviceUrl:
@@ -10,8 +23,17 @@ eureka:
 cars:
   client:
     baseUrl: api/v1/car/
-    endpoint: /carId
     hostname: CAR-SERVICE
-    timeout:
+
+customer:
+  client:
+    baseUrl: api/v1/customer/
+    hostname: CUSTOMER
+
+restTemplate:
+  timeout:
       connectSeconds: 5
       readSeconds: 20
+
+entityManager:
+  packagesToScan : com.carlease.lease
