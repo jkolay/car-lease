@@ -1,6 +1,8 @@
 package com.carlease.lease.persistence;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,9 +11,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 /**
  * Car Lease Entity Class. This class object stores car id, and customer id along with other details
@@ -25,44 +24,33 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CarLeaseDao {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "incrementDomain")
-    @GenericGenerator(name = "incrementDomain", strategy = "increment")
-    private Integer leaseId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "incrementDomain")
+  @GenericGenerator(name = "incrementDomain", strategy = "increment")
+  private Integer leaseId;
 
-    @Column(nullable = false)
-    private Integer carId;
+  @Column(nullable = false)
+  private Integer carId;
 
-    @Column
-    private Integer customerId;
+  @Column private Integer customerId;
 
-    @Column
-    private Integer duration;
+  @Column private Integer duration;
 
-    @Column
-    private LocalDate leaseStartDate;
+  @Column private LocalDate leaseStartDate;
 
-    @Column
-    private LocalDate leaseEndDate;
+  @Column private LocalDate leaseEndDate;
 
-    @Column
-    private Double interestRate;
+  @Column private Double interestRate;
 
-    @Column
-    private Long carMileageAtStartOfLease;
+  @Column private Long carMileageAtStartOfLease;
 
-    @Column
-    private Long defaultAllottedMileage;
+  @Column private Long defaultAllottedMileage;
 
-    @Column
-    private Double leasePerMonth;
+  @Column private Double leasePerMonth;
 
+  @Column(updatable = false)
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
-    @Column(updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @Column
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+  @Column @UpdateTimestamp private LocalDateTime updatedAt;
 }

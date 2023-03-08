@@ -18,11 +18,10 @@ import java.util.ArrayList;
 
 @ExtendWith(MockitoExtension.class)
 public class CarLeaseControllerTest {
-    @Mock
-    private CarLeaseService carLeaseServices;
-
     @InjectMocks
     CarLeaseController carLeaseController;
+    @Mock
+    private CarLeaseService carLeaseServices;
 
     @Test
     public void testCreateLease() throws CarLeaseException {

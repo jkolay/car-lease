@@ -16,6 +16,11 @@ import com.carlease.lease.model.response.LeaseResponse;
 import com.carlease.lease.persistence.CarLeaseDao;
 import com.carlease.lease.repository.CareLeaseRepository;
 import com.carlease.lease.service.CarLeaseService;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
@@ -25,176 +30,216 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * The service impl class for implementation of lease service method
- */
+/** The service impl class for implementation of lease service method */
 @Service
 public class CarLeaseServiceImpl implements CarLeaseService {
 
-    private final RestTemplate restTemplate;
-    private final CarClientProperties carsCarClientProperties;
+  private final RestTemplate restTemplate;
+  private final CarClientProperties carsCarClientProperties;
 
-    private final CustomerClientProperties customerClientProperties;
+  private final CustomerClientProperties customerClientProperties;
 
-    private final CarLeaseMapper carLeaseMapper;
+  private final CarLeaseMapper carLeaseMapper;
 
-    private final CareLeaseRepository careLeaseRepository;
+  private final CareLeaseRepository careLeaseRepository;
 
-    @Autowired
-    public CarLeaseServiceImpl(@Qualifier("RestTemplate") RestTemplate restTemplate, CarClientProperties carsCarClientProperties, CustomerClientProperties customerClientProperties, CarLeaseMapper carLeaseMapper, CareLeaseRepository careLeaseRepository) {
-        this.restTemplate = restTemplate;
-        this.carsCarClientProperties = carsCarClientProperties;
-        this.customerClientProperties = customerClientProperties;
-        this.carLeaseMapper = carLeaseMapper;
-        this.careLeaseRepository = careLeaseRepository;
+  @Autowired
+  public CarLeaseServiceImpl(
+      @Qualifier("RestTemplate") RestTemplate restTemplate,
+      CarClientProperties carsCarClientProperties,
+      CustomerClientProperties customerClientProperties,
+      CarLeaseMapper carLeaseMapper,
+      CareLeaseRepository careLeaseRepository) {
+    this.restTemplate = restTemplate;
+    this.carsCarClientProperties = carsCarClientProperties;
+    this.customerClientProperties = customerClientProperties;
+    this.carLeaseMapper = carLeaseMapper;
+    this.careLeaseRepository = careLeaseRepository;
+  }
+
+  /**
+   * This method retrieve car details from car service with the car id
+   *
+   * @param carId id of the car
+   * @return
+   */
+  private ResponseEntity<CarResponse> getCarResponseResponseEntity(String carId) {
+    String uriString =
+        UriComponentsBuilder.newInstance()
+            .scheme(CarLeaseConstant.HTTP)
+            .host(carsCarClientProperties.getHostname())
+            .path(carsCarClientProperties.getBaseUrl())
+            .path(carId)
+            .toUriString();
+
+    ResponseEntity<CarResponse> carResponse =
+        restTemplate.getForEntity(uriString, CarResponse.class);
+    return carResponse;
+  }
+
+  /**
+   * This method retrieves customer details from customer service by customer id
+   *
+   * @param customerId the customer id
+   * @return
+   */
+  private ResponseEntity<CustomerResponse> getCustomerResponseEntity(String customerId) {
+    String uriString =
+        UriComponentsBuilder.newInstance()
+            .scheme(CarLeaseConstant.HTTP)
+            .host(customerClientProperties.getHostname())
+            .path(customerClientProperties.getBaseUrl())
+            .path(customerId)
+            .toUriString();
+
+    ResponseEntity<CustomerResponse> customerResponse =
+        restTemplate.getForEntity(uriString, CustomerResponse.class);
+    return customerResponse;
+  }
+
+  /**
+   * This method create new lease between a car and the customer. After retrieving all the necessary
+   * details from car and customer service , it calculates the monthly lease and store it in
+   * lease_per_month column in db. it also updates the car and customer status as leased after
+   * crating the new lease.
+   *
+   * @param leaseRequest the lease request model
+   * @return
+   * @throws CarLeaseException
+   */
+  @Override
+  public LeaseResponse createNewLease(LeaseRequest leaseRequest) throws CarLeaseException {
+    ResponseEntity<CarResponse> carResponse =
+        getCarResponseResponseEntity(leaseRequest.getCarId().toString());
+    ResponseEntity<CustomerResponse> customerResponse =
+        getCustomerResponseEntity(leaseRequest.getCustomerId().toString());
+
+    if (carResponse.getBody() != null && customerResponse.getBody() != null) {
+      CarResponse carResponseObject = carResponse.getBody();
+      CustomerResponse customerResponseObj = customerResponse.getBody();
+      if (carResponseObject.getStatus().equalsIgnoreCase(CarLeaseConstant.NOT_LEASED)) {
+        CarLeaseDao leaseDao = carLeaseMapper.mapLeaseRequestToCarLeaseDao(leaseRequest);
+        leaseDao.setCarMileageAtStartOfLease(carResponseObject.getMileage());
+        leaseDao.setInterestRate(CarLeaseConstant.LEASE_PERCENTAGE);
+        LocalDate leaseEndDate =
+            leaseRequest.getLeaseStartDate().plusMonths(leaseRequest.getDuration());
+        leaseDao.setLeaseEndDate(leaseEndDate);
+        leaseDao.setDefaultAllottedMileage(CarLeaseConstant.ALLOTTED_MILEAGE);
+        Double leasePerMonth = calculateLease(leaseRequest, carResponseObject);
+        leaseDao.setLeasePerMonth(leasePerMonth);
+        careLeaseRepository.save(leaseDao);
+        CarResponse updatedCar = updateCarStatus(carResponseObject);
+        CustomerResponse updatedCustomer = updateCustomerStatus(customerResponseObj);
+        return carLeaseMapper.mapCarLeaseDaoToLeaseResponse(leaseDao, updatedCar, updatedCustomer);
+      }
+      throw new CarLeaseException("Car is already Leased");
+    } else {
+      throw new CarLeaseException("Car Or Customer is not present.Please check the details");
     }
+  }
 
-    /**
-     * This method retrieve car details from car service with the car id
-     *
-     * @param carId id of the car
-     * @return
-     */
-    private ResponseEntity<CarResponse> getCarResponseResponseEntity(String carId) {
-        String uriString = UriComponentsBuilder.newInstance().scheme(CarLeaseConstant.HTTP).host(carsCarClientProperties.getHostname()).path(carsCarClientProperties.getBaseUrl()).path(carId).toUriString();
+  /**
+   * This method updates the car status to Leased after the lease creation
+   *
+   * @param carResponse the car response
+   * @return
+   */
+  public CarResponse updateCarStatus(CarResponse carResponse) {
+    String uriString =
+        UriComponentsBuilder.newInstance()
+            .scheme(CarLeaseConstant.HTTP)
+            .host(carsCarClientProperties.getHostname())
+            .path(carsCarClientProperties.getBaseUrl())
+            .path(CarLeaseConstant.MODIFY_URL + carResponse.getCarId())
+            .toUriString();
+    HttpEntity<UpdateStatusRequestModel> updateCarRequestModelRequestEntity =
+        new HttpEntity<>(new UpdateStatusRequestModel(CarLeaseConstant.LEASED));
+    ResponseEntity<CarResponse> updatedCarResponse =
+        restTemplate.exchange(
+            uriString, HttpMethod.PUT, updateCarRequestModelRequestEntity, CarResponse.class);
+    return updatedCarResponse.getBody();
+  }
 
-        ResponseEntity<CarResponse> carResponse = restTemplate.getForEntity(uriString, CarResponse.class);
-        return carResponse;
+  /**
+   * the method updates the customer status to Leased after lease creation
+   *
+   * @param customerResponse
+   * @return
+   */
+  public CustomerResponse updateCustomerStatus(CustomerResponse customerResponse) {
+    String uriString =
+        UriComponentsBuilder.newInstance()
+            .scheme(CarLeaseConstant.HTTP)
+            .host(customerClientProperties.getHostname())
+            .path(customerClientProperties.getBaseUrl())
+            .path(CarLeaseConstant.MODIFY_URL + customerResponse.getCustomerId())
+            .toUriString();
+    HttpEntity<UpdateStatusRequestModel> updateStatusModel =
+        new HttpEntity<>(new UpdateStatusRequestModel(CarLeaseConstant.LEASED));
+    ResponseEntity<CustomerResponse> updatedCustomerResponse =
+        restTemplate.exchange(uriString, HttpMethod.PUT, updateStatusModel, CustomerResponse.class);
+    return updatedCustomerResponse.getBody();
+  }
+
+  /**
+   * this is the implementation method to retrieve lease amount by customer details of the lease
+   *
+   * @param customerId the customer id
+   * @return the list of list objects
+   * @throws CustomerNotFoundException
+   */
+  @Override
+  public List<LeaseCalculationResponse> getLeaseAmountByCustomerId(Integer customerId)
+      throws CustomerNotFoundException {
+    ResponseEntity<CustomerResponse> customerResponse =
+        getCustomerResponseEntity(customerId.toString());
+    if (customerResponse.getBody() != null) {
+      return careLeaseRepository.findByCustomerId(customerId).stream()
+          .map(carLeaseDao -> carLeaseMapper.mapCarLeaseDaoToLeaseCalcResponse(carLeaseDao))
+          .collect(Collectors.toList());
+
+    } else {
+      throw new CustomerNotFoundException("Customer is not present");
     }
+  }
 
-    /**
-     * This method retrieves customer details from customer service by customer id
-     *
-     * @param customerId the customer id
-     * @return
-     */
-    private ResponseEntity<CustomerResponse> getCustomerResponseEntity(String customerId) {
-        String uriString = UriComponentsBuilder.newInstance().scheme(CarLeaseConstant.HTTP).host(customerClientProperties.getHostname()).path(customerClientProperties.getBaseUrl()).path(customerId).toUriString();
-
-        ResponseEntity<CustomerResponse> customerResponse = restTemplate.getForEntity(uriString, CustomerResponse.class);
-        return customerResponse;
+  /**
+   * This is the implementation method to retrieve lease details of a leased car
+   *
+   * @param carId the car id
+   * @return the lease details of the car
+   * @throws CarNotFoundException
+   */
+  @Override
+  public LeaseResponse getLeaseAmountByCarId(Integer carId) throws CarNotFoundException {
+    ResponseEntity<CarResponse> carResponse = getCarResponseResponseEntity(carId.toString());
+    CarResponse carResponseObj = carResponse.getBody();
+    if (carResponseObj != null) {
+      CarLeaseDao carLeaseDao = careLeaseRepository.findByCarId(carId);
+      ResponseEntity<CustomerResponse> customerResponseEntity =
+          getCustomerResponseEntity(carLeaseDao.getCustomerId().toString());
+      return carLeaseMapper.mapCarLeaseDaoToLeaseResponse(
+          careLeaseRepository.findByCarId(carId), carResponseObj, customerResponseEntity.getBody());
     }
+    throw new CarNotFoundException("Car id is not valid");
+  }
 
-    /**
-     * This method create new lease between a car and the customer. After retrieving all the necessary details from
-     * car and customer service , it calculates the monthly lease and store it in lease_per_month column in db.
-     * it also updates the car and customer status as leased after crating the new lease.
-     *
-     * @param leaseRequest the lease request model
-     * @return
-     * @throws CarLeaseException
-     */
-    @Override
-    public LeaseResponse createNewLease(LeaseRequest leaseRequest) throws CarLeaseException {
-        ResponseEntity<CarResponse> carResponse = getCarResponseResponseEntity(leaseRequest.getCarId().toString());
-        ResponseEntity<CustomerResponse> customerResponse = getCustomerResponseEntity(leaseRequest.getCustomerId().toString());
-
-        if (carResponse.getBody() != null && customerResponse.getBody() != null) {
-            CarResponse carResponseObject = carResponse.getBody();
-            CustomerResponse customerResponseObj = customerResponse.getBody();
-            if (carResponseObject.getStatus().equalsIgnoreCase(CarLeaseConstant.NOT_LEASED)) {
-                CarLeaseDao leaseDao = carLeaseMapper.mapLeaseRequestToCarLeaseDao(leaseRequest);
-                leaseDao.setCarMileageAtStartOfLease(carResponseObject.getMileage());
-                leaseDao.setInterestRate(CarLeaseConstant.LEASE_PERCENTAGE);
-                LocalDate leaseEndDate = leaseRequest.getLeaseStartDate().plusMonths(leaseRequest.getDuration());
-                leaseDao.setLeaseEndDate(leaseEndDate);
-                leaseDao.setDefaultAllottedMileage(CarLeaseConstant.ALLOTTED_MILEAGE);
-                Double leasePerMonth = calculateLease(leaseRequest, carResponseObject);
-                leaseDao.setLeasePerMonth(leasePerMonth);
-                careLeaseRepository.save(leaseDao);
-                CarResponse updatedCar = updateCarStatus(carResponseObject);
-                CustomerResponse updatedCustomer = updateCustomerStatus(customerResponseObj);
-                return carLeaseMapper.mapCarLeaseDaoToLeaseResponse(leaseDao, updatedCar, updatedCustomer);
-            }
-            throw new CarLeaseException("Car is already Leased");
-        } else {
-            throw new CarLeaseException("Car Or Customer is not present.Please check the details");
-        }
-
-
-    }
-
-    /** This method updates the car status to Leased after the lease creation
-     * @param carResponse the car response
-     * @return
-     */
-
-    public CarResponse updateCarStatus(CarResponse carResponse) {
-        String uriString = UriComponentsBuilder.newInstance().scheme(CarLeaseConstant.HTTP).host(carsCarClientProperties.getHostname()).path(carsCarClientProperties.getBaseUrl()).path(CarLeaseConstant.MODIFY_URL + carResponse.getCarId()).toUriString();
-        HttpEntity<UpdateStatusRequestModel> updateCarRequestModelRequestEntity = new HttpEntity<>(new UpdateStatusRequestModel(CarLeaseConstant.LEASED));
-        ResponseEntity<CarResponse> updatedCarResponse = restTemplate.exchange(uriString, HttpMethod.PUT, updateCarRequestModelRequestEntity, CarResponse.class);
-        return updatedCarResponse.getBody();
-    }
-
-    /**
-     * the method updates the customer status to Leased after lease creation
-     * @param customerResponse
-     * @return
-     */
-    public CustomerResponse updateCustomerStatus(CustomerResponse customerResponse) {
-        String uriString = UriComponentsBuilder.newInstance().scheme(CarLeaseConstant.HTTP).host(customerClientProperties.getHostname()).path(customerClientProperties.getBaseUrl()).path(CarLeaseConstant.MODIFY_URL + customerResponse.getCustomerId()).toUriString();
-        HttpEntity<UpdateStatusRequestModel> updateStatusModel = new HttpEntity<>(new UpdateStatusRequestModel(CarLeaseConstant.LEASED));
-        ResponseEntity<CustomerResponse> updatedCustomerResponse = restTemplate.exchange(uriString, HttpMethod.PUT, updateStatusModel, CustomerResponse.class);
-        return updatedCustomerResponse.getBody();
-    }
-
-    /**
-     * this is the implementation method to retrieve lease amount by customer details of the lease
-     * @param customerId the customer id
-     * @return the list of list objects
-     * @throws CustomerNotFoundException
-     */
-    @Override
-    public List<LeaseCalculationResponse> getLeaseAmountByCustomerId(Integer customerId) throws CustomerNotFoundException {
-        ResponseEntity<CustomerResponse> customerResponse = getCustomerResponseEntity(customerId.toString());
-        if (customerResponse.getBody() != null) {
-            return careLeaseRepository.findByCustomerId(customerId).stream().map(carLeaseDao ->
-                 carLeaseMapper.mapCarLeaseDaoToLeaseCalcResponse(carLeaseDao)
-            ).collect(Collectors.toList());
-
-        } else {
-            throw new CustomerNotFoundException("Customer is not present");
-        }
-    }
-
-    /**
-     * This is the implementation method to retrieve lease details of a leased car
-     * @param carId the car id
-     * @return the lease details of the car
-     * @throws CarNotFoundException
-     */
-    @Override
-    public LeaseResponse getLeaseAmountByCarId(Integer carId) throws CarNotFoundException {
-        ResponseEntity<CarResponse> carResponse = getCarResponseResponseEntity(carId.toString());
-        CarResponse carResponseObj = carResponse.getBody();
-        if (carResponseObj != null) {
-            CarLeaseDao carLeaseDao = careLeaseRepository.findByCarId(carId);
-            ResponseEntity<CustomerResponse> customerResponseEntity = getCustomerResponseEntity(carLeaseDao.getCustomerId().toString());
-            return carLeaseMapper.mapCarLeaseDaoToLeaseResponse(careLeaseRepository.findByCarId(carId), carResponseObj, customerResponseEntity.getBody());
-        }
-        throw new CarNotFoundException("Car id is not valid");
-    }
-
-    /**
-     * This method calculates the lease amount of the car and return the amount .
-     * @param leaseRequest the lease request details which consist of the car id,the duration of lease
-     * @param carResponseObject the car object
-     * @return
-     */
-    private Double calculateLease(LeaseRequest leaseRequest, CarResponse carResponseObject) {
-        Long mileage = CarLeaseConstant.ALLOTTED_MILEAGE;
-        Integer duration = leaseRequest.getDuration();
-        Double interestRate = CarLeaseConstant.LEASE_PERCENTAGE;
-        Double netPrice = carResponseObject.getNetPrice();
-        Double amount = (((mileage / 12) * duration) / netPrice) + (((interestRate / 100) * netPrice) / 12);
-        BigDecimal bigDecimal = new BigDecimal(Double.toString(amount));
-        bigDecimal = bigDecimal.setScale(2, RoundingMode.HALF_UP);
-        return bigDecimal.doubleValue();
-    }
+  /**
+   * This method calculates the lease amount of the car and return the amount .
+   *
+   * @param leaseRequest the lease request details which consist of the car id,the duration of lease
+   * @param carResponseObject the car object
+   * @return
+   */
+  private Double calculateLease(LeaseRequest leaseRequest, CarResponse carResponseObject) {
+    Long mileage = CarLeaseConstant.ALLOTTED_MILEAGE;
+    Integer duration = leaseRequest.getDuration();
+    Double interestRate = CarLeaseConstant.LEASE_PERCENTAGE;
+    Double netPrice = carResponseObject.getNetPrice();
+    Double amount =
+        (((mileage / 12) * duration) / netPrice) + (((interestRate / 100) * netPrice) / 12);
+    BigDecimal bigDecimal = new BigDecimal(Double.toString(amount));
+    bigDecimal = bigDecimal.setScale(2, RoundingMode.HALF_UP);
+    return bigDecimal.doubleValue();
+  }
 }

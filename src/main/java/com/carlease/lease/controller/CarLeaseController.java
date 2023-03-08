@@ -8,66 +8,71 @@ import com.carlease.lease.model.response.LeaseCalculationResponse;
 import com.carlease.lease.model.response.LeaseResponse;
 import com.carlease.lease.service.CarLeaseService;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /**
- * Car Lease Controller Class. This class has the methods for lease creation and retrieval lease retrieval
+ * Car Lease Controller Class. This class has the methods for lease creation and retrieval lease
+ * retrieval
  */
 @Slf4j
 @RestController
 @RequestMapping(value = "api/v1/car-lease")
 public class CarLeaseController {
-    private final CarLeaseService carLeaseServices;
+  private final CarLeaseService carLeaseServices;
 
-    public CarLeaseController(CarLeaseService carLeaseServices) {
-        this.carLeaseServices = carLeaseServices;
-    }
+  public CarLeaseController(CarLeaseService carLeaseServices) {
+    this.carLeaseServices = carLeaseServices;
+  }
 
-    /**
-     * This is the endpoint to create a new lease
-     * @param leaseRequest the lease request model object to create a new lease
-     * @return the response after lease has been created in the app
-     * @throws CarLeaseException
-     */
+  /**
+   * This is the endpoint to create a new lease
+   *
+   * @param leaseRequest the lease request model object to create a new lease
+   * @return the response after lease has been created in the app
+   * @throws CarLeaseException
+   */
+  @Operation(description = "create a new lease")
+  @RequestMapping(method = RequestMethod.POST, value = "createLease")
+  @ResponseStatus(HttpStatus.CREATED)
+  public ResponseEntity<LeaseResponse> createLease(@RequestBody LeaseRequest leaseRequest)
+      throws CarLeaseException {
+    log.info("Entered client endpoint to fetch customer details");
+    return ResponseEntity.ok(carLeaseServices.createNewLease(leaseRequest));
+  }
 
-    @Operation(description = "create a new lease")
-    @RequestMapping(method = RequestMethod.POST, value = "createLease")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<LeaseResponse> createLease(@RequestBody LeaseRequest leaseRequest) throws CarLeaseException {
-        log.info("Entered client endpoint to fetch customer details");
-        return ResponseEntity.ok(carLeaseServices.createNewLease(leaseRequest));
-    }
+  /**
+   * This is the endpoint to retrieve lease details by customer Id
+   *
+   * @param customerId the customer id for whom lease details needs to be retrieved
+   * @return the List of lease objects for the customer
+   * @throws Exception
+   */
+  @Operation(description = "Retrieve lease details by customer id")
+  @RequestMapping(method = RequestMethod.GET, value = "calculate_lease/customer/{customerId}")
+  @ResponseStatus(HttpStatus.FOUND)
+  public ResponseEntity<List<LeaseCalculationResponse>> getMonthlyLease(
+      @PathVariable("customerId") Integer customerId) throws CustomerNotFoundException {
+    log.info("Entered client endpoint to fetch customer details");
+    return ResponseEntity.ok(carLeaseServices.getLeaseAmountByCustomerId(customerId));
+  }
 
-    /**
-     * This is the endpoint to retrieve lease details by customer Id
-     * @param customerId the customer id for whom lease details needs to be retrieved
-     * @return the List of lease objects for the customer
-     * @throws Exception
-     */
-    @Operation(description = "Retrieve lease details by customer id")
-    @RequestMapping(method = RequestMethod.GET, value = "calculate_lease/customer/{customerId}")
-    @ResponseStatus(HttpStatus.FOUND)
-    public ResponseEntity<List<LeaseCalculationResponse>> getMonthlyLease(@PathVariable("customerId")Integer customerId) throws CustomerNotFoundException {
-        log.info("Entered client endpoint to fetch customer details");
-        return ResponseEntity.ok(carLeaseServices.getLeaseAmountByCustomerId(customerId));
-    }
-
-    /**
-     * This is the endpoint to retrieve lease details by car Id
-     * @param carId the car id for which lease details needs to be retrieved
-     * @return the lease details of the car
-     * @throws Exception
-     */
-    @Operation(description = "Retrieve lease details by car id")
-    @RequestMapping(method = RequestMethod.GET, value = "calculate_lease/car/{carId}")
-    @ResponseStatus(HttpStatus.FOUND)
-    public ResponseEntity<LeaseResponse> getLeaseDetailsByCarId(@PathVariable("carId")Integer carId) throws CarNotFoundException {
-        log.info("Entered client endpoint to fetch customer details");
-        return ResponseEntity.ok(carLeaseServices.getLeaseAmountByCarId(carId));
-    }
+  /**
+   * This is the endpoint to retrieve lease details by car Id
+   *
+   * @param carId the car id for which lease details needs to be retrieved
+   * @return the lease details of the car
+   * @throws Exception
+   */
+  @Operation(description = "Retrieve lease details by car id")
+  @RequestMapping(method = RequestMethod.GET, value = "calculate_lease/car/{carId}")
+  @ResponseStatus(HttpStatus.FOUND)
+  public ResponseEntity<LeaseResponse> getLeaseDetailsByCarId(@PathVariable("carId") Integer carId)
+      throws CarNotFoundException {
+    log.info("Entered client endpoint to fetch customer details");
+    return ResponseEntity.ok(carLeaseServices.getLeaseAmountByCarId(carId));
+  }
 }

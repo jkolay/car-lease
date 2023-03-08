@@ -1,20 +1,19 @@
 package com.carlease.lease.model.error;
 
-/**
- * Model for Error Severity Level
- */
+/** Model for Error Severity Level */
 public enum ErrorSeverityLevelCodeType {
-    WARNING,
-    ERROR,
-    INFORMATION;
+  WARNING,
+  ERROR,
+  INFORMATION;
 
-    public static ErrorSeverityLevelCodeType getValue(String name){
-        ErrorSeverityLevelCodeType value=null;
-        for(ErrorSeverityLevelCodeType errorSeverityLevelCodeType: ErrorSeverityLevelCodeType.values()){
-            if(errorSeverityLevelCodeType.name().equalsIgnoreCase(name)){
-                value=errorSeverityLevelCodeType;
-            }
-        }
-        return value;
+  public static ErrorSeverityLevelCodeType getValue(String name) {
+    ErrorSeverityLevelCodeType value = null;
+    for (ErrorSeverityLevelCodeType errorSeverityLevelCodeType :
+        ErrorSeverityLevelCodeType.values()) {
+      if (errorSeverityLevelCodeType.name().equalsIgnoreCase(name)) {
+        value = errorSeverityLevelCodeType;
+      }
     }
+    return value;
+  }
 }

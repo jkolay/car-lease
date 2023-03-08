@@ -9,9 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
-/**
- * Configuration file to create rest template
- */
+/** Configuration file to create rest template */
 @Configuration
 public class ClientConfig {
 
