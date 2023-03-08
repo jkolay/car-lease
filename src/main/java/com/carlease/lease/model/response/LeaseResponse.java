@@ -5,7 +5,9 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-
+/**
+ * Laese response model to show response after new lease craetion
+ */
 @Data
 public class LeaseResponse {
     private Integer leaseId;

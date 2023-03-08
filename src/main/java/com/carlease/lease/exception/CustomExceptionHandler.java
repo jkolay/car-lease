@@ -33,14 +33,6 @@ import java.util.Map;
 @RestController
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
-    
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
-            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
-        }
-
-        return new ResponseEntity(body, headers, status);
-    }
 
 
     @Override
@@ -59,7 +51,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CustomerNotFoundException.class)
     @ResponseBody
-    public ResponseEntity<Object> handleNotFoundException(CustomerNotFoundException ex) {
+    public ResponseEntity<Object> handleCustomerNotFoundException(CustomerNotFoundException ex) {
         final LeaseErrorModel error = new LeaseErrorModel(ex.getMessage(), CarLeaseErrorCodeConfig.INVALID_INPUT, ErrorSeverityLevelCodeType.ERROR);
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -68,7 +60,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CarNotFoundException.class)
     @ResponseBody
-    public ResponseEntity<Object> handleNotFoundException(CarNotFoundException ex) {
+    public ResponseEntity<Object> handleCarNotFoundException(CarNotFoundException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         final LeaseErrorModel error = new LeaseErrorModel(ex.getMessage(), CarLeaseErrorCodeConfig.INVALID_INPUT, ErrorSeverityLevelCodeType.ERROR);
         return new ResponseEntity<>(error, status);

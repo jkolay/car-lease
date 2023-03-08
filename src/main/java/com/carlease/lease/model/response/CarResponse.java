@@ -8,6 +8,9 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Car Response Modle class
+ */
 @Getter
 @Setter
 @AllArgsConstructor

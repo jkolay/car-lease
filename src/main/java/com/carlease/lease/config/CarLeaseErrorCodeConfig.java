@@ -1,5 +1,8 @@
 package com.carlease.lease.config;
 
+/**
+ * Error Code Configuration File
+ */
 public class CarLeaseErrorCodeConfig {
     public static final String INVALID_INPUT = "001";
     public static final String DB_ERROR = "002";
