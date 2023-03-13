@@ -24,6 +24,7 @@ Car Lease Web Service is microservice based layered architecture with RESTful We
  If it is not leased ,it gets leased by the customer and appropriate details gets added in db. The company employee has authority to create lease between a car and customer.
  After creation of lease,Broker has access to view lease details by customer id. The company employee can view a lease car details by providing car details or customer details. 
 
+![diagram](https://user-images.githubusercontent.com/65228852/224852256-4d4bd530-b9a7-4fdb-99e9-fd8c1d037ae1.jpeg)
 
 
 ## Service Components
@@ -221,6 +222,8 @@ Retrieve authentication token from the below api
 ###### GET (http://localhost:8084/user)
 In postman add request in below format and retrieve authentication from response headers
 
+<img width="802" alt="Screenshot 2023-03-13 at 23 38 48" src="https://user-images.githubusercontent.com/65228852/224852443-4c632a34-743a-47ab-a07f-abd8357a97f2.png">
+
 
 ### 2. Calculate lease amount
 ##### POST (http://localhost:8084/api/v1/car-lease/createLease)
@@ -239,11 +242,47 @@ Authorization and X-XSRF-TOKEN\
 To Execute this request 2 steps needs to be followed.
 1. Add only Authentication retrieved from **1. Create auth token** step and execute the request.
 
+<img width="802" alt="Screenshot 2023-03-13 at 23 38 48" src="https://user-images.githubusercontent.com/65228852/224852625-3eda65b8-f09a-4993-8ace-23bbfba2fc43.png">
+
 
 2. The request will be failed. Copy XSRF-TOKEN token from response cookie and add the value to car-lease create request header 
    under X-XSRF-TOKEN token and execute
 
+<img width="804" alt="Screenshot 2023-03-13 at 23 39 34" src="https://user-images.githubusercontent.com/65228852/224852659-835b1d77-40cf-47e5-9d8f-c380a1c20c72.png">
 
+Response
+ ```
+ {
+    "leaseId": 1,
+    "duration": 60,
+    "leaseStartDate": "2023-06-05",
+    "leaseEndDate": "2028-06-05",
+    "interestRate": 4.5,
+    "defaultAllottedMileage": 45000.0,
+    "leasePerMonth": 225.06,
+    "customer": {
+        "customerId": 1,
+        "name": "Ana ",
+        "street": "Charles Road",
+        "houseNumber": "112",
+        "zipcode": "1189AT",
+        "place": "Amstelveen",
+        "emailAddress": "ana@gmail.com",
+        "phoneNumber": "1234098767"
+    },
+    "car": {
+        "carId": 1,
+        "make": "Hyundai",
+        "model": "creta",
+        "version": "x25",
+        "numberOfDoors": 4,
+        "co2Emission": 1.45,
+        "netPrice": 59000.0,
+        "grossPrice": 59000.0,
+        "mileage": 10000
+    }
+}
+ ```
 
 #### 2. Get Lease details for a customer
 This below end point will fetch lease details of a customer\
