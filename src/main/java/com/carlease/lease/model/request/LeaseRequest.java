@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
+/**
+ * Lease request model class to create new lease
+ */
 public class LeaseRequest {
 
     @NotNull(message= CarLeaseValidationMessageConfig.CUSTOMER_ID_NOT_NULL)

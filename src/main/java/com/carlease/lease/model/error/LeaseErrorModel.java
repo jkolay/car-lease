@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Lease Error Model class for to display error to user
+ */
 @Getter
 @Setter
 @AllArgsConstructor

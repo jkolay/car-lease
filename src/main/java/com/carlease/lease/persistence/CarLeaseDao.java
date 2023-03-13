@@ -13,9 +13,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Car Lease Entity Class. This class object stores car id, and customer id along with other details
+ */
 @Entity
 @DynamicUpdate
-@Table(name = "car-lease")
+@Table(name = "lease")
 @Getter
 @Setter
 @AllArgsConstructor

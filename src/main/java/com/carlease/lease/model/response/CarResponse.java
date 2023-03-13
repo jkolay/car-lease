@@ -6,8 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
+/**
+ * Car Response Modle class
+ */
 @Getter
 @Setter
 @AllArgsConstructor
@@ -30,8 +31,6 @@ public class CarResponse {
 
     private Double grossPrice;
     private Long mileage;
-
-    private String status;
 
 
 }
