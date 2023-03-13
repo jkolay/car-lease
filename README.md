@@ -9,17 +9,17 @@ The end-users of the Car-lease Platform API are:
 ## System Design
 
 Car Lease Web Service is microservice based layered architecture with RESTful Web Service. There are total 3 services:
-- Customer Service\
+- **Customer Service**\
  Customer service basically designed to add,update,retrieve and remove customer details. Broker will be able to add,update,retrieve,delete
  customer details whereas Company employees will be able to retrieve customer details.
  Once customer service is up 2 basic customer details will be autopopulated in the app.
 
-- Car Service\
+- **Car Service**\
  Car service is designed to add,update,retrieve and remove car details. Company employees will be able to add,update,retrieve,delete
  car details whereas Broker will be able to retrieve car details.
  Once car service is up,2 basic car records will be autopopulated in the app
 
-- Car-Lease Service\
+- **Car-Lease Service**\
  Car Lease service is designed to lease a car in the app. Car lease api fetches the car details from car api and checks if the car is already leased bu other customer.
  If it is not leased ,it gets leased by the customer and appropriate details gets added in db. The company employee has authority to create lease between a car and customer.
  After creation of lease,Broker has access to view lease details by customer id. The company employee can view a lease car details by providing car details or customer details. 
@@ -29,21 +29,21 @@ Car Lease Web Service is microservice based layered architecture with RESTful We
 
 ## Service Components
 Each Service has 4 components as follows:
-- API Layer\
+- **API Layer**\
 Top layer, which is main interface available for front-end or end user to consume APIs
 Contains end points implementation
 Springboot-starter-web module used as a framework to implement ReSTful api end points
 
-- Service Layer\
+- **Service Layer**\
 The service layer is a layer in an application that facilitates communication between the api end point and the data access layer. Additionally, business logic is stored in the service layer.
 It is responsible for interacting with Data Access Layer and transferring the  data as required by top and below layers
 Further it is a module added to decouple business logic of recipes data transfer and mapping from/to API layer
 
-- Data Access Layer\
+- **Data Access Layer**\
 The persistence layer contains all the database storage logic. It is responsible for converting business objects to the database row and vice-versa with Object Relationship Mapping (ORM).
 This layer contains  entity classes and JPA repositories which implement lower level functionality of storing/retrieving  data
 
-- Persistence Layer\
+- **Persistence Layer**\
 Bottom most layer, responsible for physically storing the car lease data onto database table.
 Table - car,customer,lease are used to store the car-lease data for the service
 For development and testing purposes, the Embedded H2 Database provided by Spring Boot framework is also utilized
