@@ -1,7 +1,6 @@
 ## Car Lease Web Service
 
-Car Lease Web Service is specifically designed to  adding, updating, removing and fetching recipes and ingredients from database and render the requested details as JSON response to end user. It also has the search capability with helps to search recipes based on any filter criteria.The response from ReST APIs can be further integrated with front end view for better presentation.
-maintain vehicle versions, customers and
+The Car-lease Platform API is a REST API that allows to maintain vehicle versions, customers and
 other data needed to service a broker.
 The end-users of the Car-lease Platform API are:
 - Brokers that calculate the lease rate for a customer and maintain customer data.

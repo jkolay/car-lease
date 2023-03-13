@@ -28,7 +28,6 @@ public class ProjectSecurityConfig {
                 .csrf(
                         (csrf) ->
                                 csrf.csrfTokenRequestHandler(requestHandler)
-                                        .ignoringRequestMatchers("/contact")
                                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
