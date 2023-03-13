@@ -154,6 +154,9 @@ Open browser and navigate to http://localhost:8083/h2-console/. Replace the belo
 ```text
 http://localhost:8083/swagger-ui/index.html#/
 ```
+
+
+----------------------------------------- 
 3. Install Car-lease Web Service
 -  Download zip https://github.com/jkolay/car-lease.git
 -  Move to car-lease folder and follow Install application command line in customer folder
