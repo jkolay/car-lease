@@ -360,7 +360,7 @@ Response
 |                                   http://localhost:8081/api/v1/car/view{carId}                                   |     GET     | BROKER ,COMPANY | Authorization           |
 |                                   http://localhost:8081/api/v1/car/retrieveAll                                   |     GET     | COMPANY ,BROKER | Authorization           |
 |                                    http://localhost:8081/api/v1/car/update/1                                     |    PUT      |COMPANY          |  Authorization,X-XSRF-TOKEN|
-| ---------------------------------------------------------------------------------------------------------------- | -------------- | -----------------|-------------------------|  
+
 
 For POST and PUT api please follow car lease xsrf step
 
@@ -372,7 +372,6 @@ For POST and PUT api please follow car lease xsrf step
 |                                 http://localhost:8083/api/v1/customer/view/{id}                                  |     GET     |  BROKER ,COMPANY  | Authorization           |
 |                         http://localhost:8083/api/v1/customer/customerList?page=0&size=1                         |     GET     |  COMPANY ,BROKER  | Authorization           |
 |                                http://localhost:8083/api/v1/customer/update/{id}                                 |    PUT      |      BROKER       |  Authorization,X-XSRF-TOKEN|
-| ---------------------------------------------------------------------------------------------------------------- | -------------- | ----------------- |-------------------------|  
 
 For POST and PUT api please follow car lease xsrf step
 
