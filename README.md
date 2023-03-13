@@ -196,9 +196,6 @@ Open browser and navigate to http://localhost:8084/h2-console/. Replace the belo
 | User Name |          sa           |
 | Password  |                       |
 -----------------------------------------
-### Database components
-
-Open browser and navigate to http://localhost:8084/h2-console/. Replace the below field details
 
 
 
