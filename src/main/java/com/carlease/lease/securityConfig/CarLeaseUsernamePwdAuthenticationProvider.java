@@ -1,4 +1,4 @@
-package com.carlease.lease.config;
+package com.carlease.lease.securityConfig;
 
 import com.carlease.lease.persistence.Authority;
 import com.carlease.lease.persistence.Customer;

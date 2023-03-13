@@ -1,4 +1,4 @@
-package com.carlease.lease.config;
+package com.carlease.lease.securityConfig;
 
 import com.carlease.lease.filter.*;
 import org.springframework.context.annotation.Bean;
