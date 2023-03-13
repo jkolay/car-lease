@@ -225,7 +225,8 @@ Retrieve authentication token from the below api
 ###### GET (http://localhost:8084/user)
 In postman add request in below format and retrieve authentication from response headers
 
-<img width="802" alt="Screenshot 2023-03-13 at 23 38 48" src="https://user-images.githubusercontent.com/65228852/224852443-4c632a34-743a-47ab-a07f-abd8357a97f2.png">
+<img width="808" alt="Screenshot 2023-03-14 at 00 19 37" src="https://user-images.githubusercontent.com/65228852/224853460-da23d843-af5b-4211-8da7-e8a687605c77.png">
+
 
 
 ### 2. Calculate lease amount
