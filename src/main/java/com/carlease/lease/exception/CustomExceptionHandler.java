@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -102,6 +104,20 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    @ResponseBody
+    public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex) {
+        final LeaseErrorModel error = new LeaseErrorModel(ex.getMessage(), CarLeaseErrorCodeConfig.BAD_CREDENTIALS, ErrorSeverityLevelCodeType.ERROR);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseBody
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex) {
+        final LeaseErrorModel error = new LeaseErrorModel("Authentication failed", CarLeaseErrorCodeConfig.UNAUTHORIZED, ErrorSeverityLevelCodeType.ERROR);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseBody
@@ -109,7 +125,6 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         final LeaseErrorModel error = new LeaseErrorModel(ex.getMessage(), CarLeaseErrorCodeConfig.INTERNAL_ERROR, ErrorSeverityLevelCodeType.ERROR);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 
     @ExceptionHandler(Exception.class)
     @ResponseBody

@@ -72,7 +72,6 @@ public class CarLeaseServiceImplTest {
         Mockito.when(restTemplate.getForEntity(Mockito.eq("http://localhost/customer1"),argumentCaptor.capture())).thenReturn(customer);
         Mockito.when(carResponse.getBody()).thenReturn(carResponse1);
         Mockito.when(customer.getBody()).thenReturn(customerResponse);
-        Mockito.when(carResponse1.getStatus()).thenReturn(CarLeaseConstant.NOT_LEASED);
         Mockito.when(carLeaseMapper.mapLeaseRequestToCarLeaseDao(Mockito.any(LeaseRequest.class))).thenReturn(carLeaseDao);
         Mockito.when(carResponse1.getMileage()).thenReturn(11223L);
         Mockito.when( careLeaseRepository.save(Mockito.any(CarLeaseDao.class))).thenReturn(carLeaseDao);

@@ -27,7 +27,7 @@ public class CarLeaseControllerTest {
     @Test
     public void testCreateLease() throws CarLeaseException {
         Mockito.when(carLeaseServices.createNewLease(Mockito.any(LeaseRequest.class))).thenReturn(new LeaseResponse());
-      //  Assertions.assertNotNull(carLeaseController.createLease(new LeaseRequest()));
+       Assertions.assertNotNull(carLeaseController.createLease(new LeaseRequest()));
     }
 
     @Test
