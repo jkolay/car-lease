@@ -231,7 +231,7 @@ In postman add request in below format and retrieve authentication from response
 
 ### 2. Calculate lease amount
 ##### POST (http://localhost:8084/api/v1/car-lease/createLease)
-Users having company role can create new lease\
+Users having company role can create new lease
  ```
   {
     "customerId": 1,
@@ -240,8 +240,8 @@ Users having company role can create new lease\
     "leaseStartDate": "2023-06-05"
 }
  ```
-In postman In request add two fields\
-Authorization and X-XSRF-TOKEN\
+In postman In request add two fields
+Authorization and X-XSRF-TOKEN
 
 To Execute this request 2 steps needs to be followed.
 1. Add only Authentication retrieved from **1. Create auth token** step and execute the request.
