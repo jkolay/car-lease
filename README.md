@@ -289,11 +289,11 @@ Response
  ```
 
 #### 2. Get Lease details for a customer
-This below end point will fetch lease details of a customer\
+This below end point will fetch lease details of a customer
 
 ##### GET (http://localhost:8084/api/v1/car-lease/calculate_lease/customer/{customerId})
-Retrieve the authentication token and add it to the header.\
-This api can be accessed by users having COMPANY and BROKER role\
+Retrieve the authentication token and add it to the header.
+This api can be accessed by users having COMPANY and BROKER role.
 Response
  ```
   [
@@ -315,8 +315,8 @@ Response
   ```
 #### 3.Get lease details of a car
 
-This below end point will fetch of lease details of a  car\
-Retrieve the authentication token and add it to the header.\
+This below end point will fetch of lease details of a  car
+Retrieve the authentication token and add it to the header.
 ##### GET (http://localhost:8084/api/v1/car-lease/calculate_lease/car/{carId})
 Response
  ```
