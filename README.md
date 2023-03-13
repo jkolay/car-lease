@@ -216,8 +216,8 @@ This below end point will create a new token which will authenticate the request
 
 |     username      | password | role    |
 |:-----------------:|:--------:|:--------|
-| happy@example.com |  123456  | COMPANY |
-| jayati@gmail.com  |  123456  | BROKER  |
+| happy@example.com |  12345   | COMPANY |
+| jayati@gmail.com  |  12345   | BROKER  |
 -------------------------------------------
 
 Retrieve authentication token from the below api
